@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zxx" id="html_page">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/static/images/basic/favicon.ico" type="image/x-icon">
+    <title>Bayusuta</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.4.0/css/ol.css" type="text/css">
+    <link rel="stylesheet" href="/static/scripts/css/app.css">
+    <style>
+        html, body{
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+        }
+
+        .loader {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #F5F8FA;
+            z-index: 9998;
+            text-align: center;
+        }
+
+        #app {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+        }
+
+        #header { 
+            position: absolute;
+            left: 350px;
+            bottom: 0px;
+            color: white;
+            z-index: 100;
+            font-family: Sans;
+            margin-top: 20px;
+        }
+
+        .plane-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+        }
+
+        .map {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+        }
+
+        .ol-zoom, .ol-attribution {
+            right: 100px !important;
+            left: initial;
+        }
+
+        body.disabled {
+         filter: grayscale(100%);
+         -webkit-filter: grayscale(100%);
+         filter: contrast(30%);
+         -webkit-filter: contrast(30%);
+        }
+
+        .marker {
+            width:0;
+            height:0;
+        }
+    </style>
+    <!-- Js -->
+    <script>(function(w,d,u){w.readyQ=[];w.bindReadyQ=[];function p(x,y){if(x=="ready"){w.bindReadyQ.push(y);}else{w.readyQ.push(x);}};var a={ready:p,bind:p};w.$=w.jQuery=function(f){if(f===d||f===u){return a}else{p(f)}}})(window,document)</script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.4.0/build/ol.js" type="text/javascript"></script>
+    <script>
+        // Running in electron
+        try {
+            $ = jQuery = module.exports;
+            // If you want module.exports to be empty, uncomment:
+            // module.exports = {};
+        } catch(e) {}
+     </script>
+</head>
+<body id="page-body" class="light sidebar-mini sidebar-collapsex sidebar-expanded-on-hoverx">
+<!-- Pre loader -->
+<div id="loader" class="loader">
+    <div class="plane-container">
+        <div class="preloader-wrapper small active">
+            <div class="spinner-layer spinner-blue">
+                <div class="circle-clipper left">
+                    <div class="circle"></div>
+                </div><div class="gap-patch">
+                <div class="circle"></div>
+            </div><div class="circle-clipper right">
+                <div class="circle"></div>
+            </div>
+            </div>
+
+            <div class="spinner-layer spinner-red">
+                <div class="circle-clipper left">
+                    <div class="circle"></div>
+                </div><div class="gap-patch">
+                <div class="circle"></div>
+            </div><div class="circle-clipper right">
+                <div class="circle"></div>
+            </div>
+            </div>
+
+            <div class="spinner-layer spinner-yellow">
+                <div class="circle-clipper left">
+                    <div class="circle"></div>
+                </div><div class="gap-patch">
+                <div class="circle"></div>
+            </div><div class="circle-clipper right">
+                <div class="circle"></div>
+            </div>
+            </div>
+
+            <div class="spinner-layer spinner-green">
+                <div class="circle-clipper left">
+                    <div class="circle"></div>
+                </div><div class="gap-patch">
+                <div class="circle"></div>
+            </div><div class="circle-clipper right">
+                <div class="circle"></div>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="app">
+    <aside class="main-sidebar fixed offcanvas b-r sidebar-tabs" style="min-width: 70px;" data-toggle='offcanvas'>
+        <div class="sidebar">
+            <div class="d-flex hv-100 align-items-stretch">
+                <div class="indigo text-white">
+                    <div class="nav mt-5 pt-5 flex-column nav-pills" id="v-pills-tab" role="tablist"
+                         aria-orientation="vertical">
+                        <a class="nav-link" href="/plan" aria-selected="true"><i class="icon-map"></i><h6 style="font-size: 8px">PLAN</h6></a>
+                        <a class="nav-link active" id="v-pills-profile-tab" data-toggle="pill" href="/status" role="tab"
+                           aria-controls="v-pills-profile" aria-selected="false"><i class="icon-plane"></i><h6 style="font-size: 8px">STATUS</h6></a>
+                        <a class="nav-link" href="" aria-selected="false"><i class="icon-refresh"></i><h6 style="font-size: 8px">CALIBRATE</h6></a>
+                        <a class="nav-link" href="" aria-selected="false"><i class="icon-settings2"></i><h6 style="font-size: 8px">SETTING</h6></a>
+                        <a class="nav-link" href="" aria-selected="false"><i class="icon-help"></i><h6 style="font-size: 8px">HELP</h6></a>
+                    </div>
+                </div>
+                <div class="tab-content flex-grow-1" id="v-pills-tabContent" style="width: 257px;">
+                    <div class="tab-pane fade show active" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">
+                        <div id="status-disconnect" class="relative brand-wrapper sticky b-b p-3 bg-danger" style="display:block;">
+                            <center><h2 class="text-white">DISCONNECTED</h2></center>
+                        </div>
+                        <div id="status-connect" class="relative brand-wrapper sticky b-b p-3 bg-success" style="display:none;">
+                            <center><h2 class="text-white">CONNECTED</h2></center>
+                        </div>
+                        <div class="sticky slimScroll">
+                            <div class="p-2">
+                                <ul class="list-unstyled">
+                                    <!-- Single contact -->
+                                    <li class="my-1">
+                                        <div class="card no-b p-3">
+                                            <div class="form-group">
+                                                <input type="text" class="form-control" id="textbox-address" placeholder="PORT">
+                                            </div>
+                                            <div class="form-group">
+                                                <input type="text" class="form-control" id="textbox-baudrate" placeholder="Baudrate">
+                                            </div>
+                                            <div class="form-group">
+                                                <!--connect button-->
+                                                <button class="btn btn-info" id="btn-connect" style="width: 100%; display: block;"><i class="icon icon-refresh"></i>CONNECT</button>
+                                                <!--connecting button-->                                                
+                                                <button class="btn btn-warning" style="display: none; width: 100%;"  id="btn-connecting"><i class="icon icon-refresh"></i>CONNECTING...</button>
+                                                <!--disconnect button-->
+                                                <button class="btn btn-danger" id="btn-disconnect" style="width: 100%; display: none;"><i class="icon icon-power-off"></i>DISCONNECT</button>
+                                                <!--disconnecting button-->
+                                                <button class="btn btn-danger" id="btn-disconnecting" style="width: 100%; display: none;"><i class="icon icon-refresh"></i>DISCONNECTING...</button>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="pt-3 pb-3 sticky p-3 b-b white">
+                                        <input type="checkbox" id="toggle-centermap" checked="true" name="toggle_centermap">
+                                        <label for="toggle_centermap">Toggle Center Map</label>
+                                    </li>
+
+                                    <li class="pt-3 pb-3 sticky p-3 b-b white">
+                                        <span id="uavid" class="badge r-2 badge-success">STATUS UAVID : 0</span>
+                                    </li>
+                                    <li class="my-1">
+                                        <div class="card no-b p-3 col-md-6 float-left">
+                                            <small>Altitude</small>
+                                            <div>
+                                                <strong id="header-alt" style="color: #000;">NAN m</strong>
+                                            </div>
+                                        </div>
+                                        <div class="card no-b p-3 col-md-6">
+                                            <small>Distance to WP</small>
+                                            <div>
+                                                <strong id="header-distWP" style="color: #000;">NAN m</strong>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="my-1">
+                                        <div class="card no-b p-3 col-md-6 float-left">
+                                            <small>Vertical Speed</small>
+                                            <div>
+                                                <strong id="header-vspeed" style="color: #000;">NAN mph</strong>
+                                            </div>
+                                        </div>
+                                        <div class="card no-b p-3 col-md-6">
+                                            <small>Ground Speed</small>
+                                            <div>
+                                                <strong id="header-gspeed" style="color: #000;">NAN mph</strong>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="my-1">
+                                        <div class="card no-b p-3 col-md-6 float-left">
+                                            <small>Yaw</small>
+                                            <div>
+                                                <strong id="header-yaw" style="color: #000;">NAN deg</strong>
+                                            </div>
+                                        </div>
+                                        <div class="card no-b p-3 col-md-6">
+                                            <small>distance to MAV</small>
+                                            <div>
+                                                <strong style="color: #000;">NAN</strong>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="my-1">
+                                        <div class="card no-b p-3 center">
+                                            <div class="form-group">
+                                                <button id="delete-vehicle" class="btn btn-danger" style="width: 100%; display: block;"><i class="icon icon-remove"></i>Delete</button>
+                                            </div>
+                                        </div>
+                                    </li>
+
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <a href="#" id="push-menu" data-toggle="push-menu" class="paper-nav-toggle left ml-2 fixed" style="left: 5px;">
+        <i></i>
+    </a>
+    <!--main-->
+    <div class="has-sidebar-left has-sidebar-tabs" style="margin: 0; padding: 0; height: 100%; width: auto;">
+        <div class="container-fluid relative animatedParent animateOnce " style="margin: 0; padding: 0; height: 100%; width: 100%;">
+            <!--MAP DISINI-->
+            <div id="header">
+                <p id="pointer-coordinate" style="background-color:rgba(0,60,136,.5); margin-bottom: .5em;"><b>Longitude:</b> ??? <b>Latitude:</b> ??? </p>
+             </div>
+            <!-- <div style="background-color: aquamarine; height: 100px; width: 100px;"></div> -->
+            <div id="map" class="map"></div>
+        </div>
+    </div>
+    <!--right sidebar-->
+    <aside class="control-sidebar fixed white" style="right: 0; width: auto; height: 100%;">
+        <div class="slimScrollDiv" style="position: relative; overflow: hidden; width: auto; height: 100%; width: 100%;">
+            <div class="slimScroll" style="overflow: hidden; height: 100%; width: 100%;">
+                <div class="sidebar-header" style="padding-left: 10px; padding-top: 10px; padding-right: 10px; ">
+                    <h6><b>Vehicles</b></h6>
+                </div>
+                <div class="table-responsive">
+                    <table id="recent-orders" class="table table-hover mb-0 ps-container ps-theme-default">
+                        <tbody id="table-vehiclelist">
+
+                        </tbody>
+                    </table>
+                    <table id="recent-orders" class="table table-hover mb-0 ps-container ps-theme-default">
+                        <tbody>
+                        <tr id="btn-addvehicle">
+                            <td>
+                                <div style="border: none; background: none; width: 100%; margin-left:auto; margin-right:auto;"><center><i class="icon-add_circle text-dark"></i></center></div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="slimScrollBar" style="background: rgba(0, 0, 0, 0.95); width: 5px; position: absolute; top: 0px; opacity: 0.4; display: none; border-radius: 7px; z-index: 99; right: 1px; height: 407.616px;"></div>
+            <div class="slimScrollRail" style="width: 5px; height: 100%; position: absolute; top: 0px; display: none; border-radius: 7px; background: rgb(51, 51, 51); opacity: 0.2; z-index: 90; right: 1px;"></div>
+        </div>
+    </aside>
+    <div class="control-sidebar-bg shadow white fixed"></div>
+</div>
+<!--/#app -->
+<script src="/static/scripts/js/app.js"></script>
+<script type="text/javascript" src="/static/scripts/js/status_realtime.js"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        GetData();
+        window.onbeforeunload = function(){
+            TransferData();
+            // return 'Are you sure you want to leave?';
+        };
+        // $("#btn-addvehicle").click();
+    });
+</script>
+
+<script>(function($,d){$.each(readyQ,function(i,f){$(f)});$.each(bindReadyQ,function(i,f){$(d).bind("ready",f)})})(jQuery,document)</script>
+</body>
+</html>
