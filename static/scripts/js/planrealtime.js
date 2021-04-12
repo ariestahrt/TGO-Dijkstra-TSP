@@ -902,7 +902,7 @@ function addVehicle(id, color) {
 // Begin of enable/disableElement
 
 function toggleActive(element, enableAll){
-	var elementID = ["btn-toggle-marker", "btn-toggle-draw", "btn-toggle-drag", "btn-upload", "btn-save", "btn-autowp", "btn-toggle-edit-table", "btn-clear-wp" ];
+	var elementID = ["btn-toggle-marker", "btn-toggle-draw", "btn-toggle-drag", "btn-autowp", "btn-clear-wp" ];
 	elementID.forEach(item => {
 		if(enableAll){
 			document.getElementById(item).removeAttribute("disabled");
