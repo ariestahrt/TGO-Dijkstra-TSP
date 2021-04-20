@@ -1,4 +1,4 @@
 # TGO-ShortestPath
 
 ## Live Preview
-https://ariestahrt.github.io/TGO-ShortestPath/index.html
+https://ariestahrt.github.io/TGO-Dijkstra-TSP/index.html
